@@ -30,14 +30,37 @@ ESP32 sketch that drives two 12 V linear actuators (VEVOR OK648) in parallel thr
 - Converter OUT- to ESP32 `GND` and both relays' `DC-`
 - ESP32 GPIO 32 to relay 1 `IN` (UP)
 - ESP32 GPIO 33 to relay 2 `IN` (DOWN)
-
-**Power side (12 V, not through the converter)**
-
-- 12 V source + and - go to the converter input
-- Relays switch the actuator polarity: relay 1 feeds the red wires, relay 2 feeds the black wires
-- Use thick wire for the actuator connections
+- 12 V source + and - also go to the converter input (IN+ and IN-)
 
 The buck converter does not isolate input from output, so the 12 V and 5 V grounds are already shared.
+
+### 12 V power side (actuators)
+
+The actuators get 12 V straight from the source through the relay contacts, never through the buck converter. Each relay module has three contact terminals: **COM**, **NO** (normally open) and **NC** (normally closed). Two relays reverse the polarity:
+
+| Relay | COM | NO | NC |
+|-------|-----|----|----|
+| Relay 1 (UP, GPIO 32) | both actuators' **red** wires | 12 V + | 12 V - |
+| Relay 2 (DOWN, GPIO 33) | both actuators' **black** wires | 12 V + | 12 V - |
+
+How it works:
+
+- Both relays off: both actuator wires sit on 12 V -, so the actuators are stopped.
+- Relay 1 on: red = 12 V +, black = 12 V -, so the actuators extend.
+- Relay 2 on: black = 12 V +, red = 12 V -, so the actuators retract.
+- The sketch never switches both relays on at once, which would short 12 V + to 12 V - through the contacts.
+
+Steps:
+
+1. Power everything off before wiring.
+2. Join the two red wires into one connection and the two black wires into another (the actuators run in parallel). Use a terminal block or a good crimp or solder joint.
+3. Red (both) to relay 1 COM, black (both) to relay 2 COM.
+4. Make a 12 V + wire with a fuse and connect it to NO on both relays.
+5. Make a 12 V - wire and connect it to NC on both relays.
+6. Use thick wire (at least 1.5 mm2, solid core is fine) for everything on the 12 V side. The converter's small terminals only carry the thin input wires.
+7. Check the wiring against the table before switching on the 12 V. First test with the ESP32 relay signal running and the actuators disconnected, then connect the actuators.
+
+If the actuators move the wrong way, swap the red and black wires on the two COM terminals.
 
 ### Relay trigger jumper
 
