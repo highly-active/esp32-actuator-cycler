@@ -15,9 +15,6 @@
 // ---------- SETTINGS ----------
 const int PIN_RELAY_UP   = 32;   // relay 1 IN -> red actuator wires
 const int PIN_RELAY_DOWN = 33;   // relay 2 IN -> black actuator wires
-// Relay jumper on "H" (high-level trigger): HIGH = relay on.
-const bool RELAY_ON = HIGH;
-
 // Full stroke time = stroke / speed, plus ~2 s extra so both actuators
 // always reach their internal end stop (keeps them in sync).
 // 150 mm @ 14 mm/s ≈ 11 s -> 13 s.   300 mm @ 5 mm/s = 60 s -> 62 s.
@@ -34,9 +31,21 @@ unsigned long cycles = 0;
 
 Adafruit_SSD1306 display(128, 64, &Wire, OLED_RST);
 
+// Relay jumper on "L" (low-level trigger): pulling IN to GND = relay on.
+// "Off" releases the pin (input / floating) instead of driving 3.3 V, because
+// 3.3 V is not high enough to fully switch off a module powered from 5 V.
+void setRelay(int pin, bool on) {
+  if (on) {
+    digitalWrite(pin, LOW);
+    pinMode(pin, OUTPUT);
+  } else {
+    pinMode(pin, INPUT);
+  }
+}
+
 void relaysOff() {
-  digitalWrite(PIN_RELAY_UP, !RELAY_ON);
-  digitalWrite(PIN_RELAY_DOWN, !RELAY_ON);
+  setRelay(PIN_RELAY_UP, false);
+  setRelay(PIN_RELAY_DOWN, false);
 }
 
 void enterState(State s) {
@@ -44,8 +53,8 @@ void enterState(State s) {
   delay(200);  // let the contacts open before the other relay closes
   state = s;
   stateStart = millis();
-  if (s == MOVING_UP)   digitalWrite(PIN_RELAY_UP, RELAY_ON);
-  if (s == MOVING_DOWN) digitalWrite(PIN_RELAY_DOWN, RELAY_ON);
+  if (s == MOVING_UP)   setRelay(PIN_RELAY_UP, true);
+  if (s == MOVING_DOWN) setRelay(PIN_RELAY_DOWN, true);
 }
 
 unsigned long stateLength() {
@@ -89,11 +98,7 @@ void drawScreen() {
 }
 
 void setup() {
-  // Set outputs to OFF before enabling them so relays don't click at boot
-  digitalWrite(PIN_RELAY_UP, !RELAY_ON);
-  digitalWrite(PIN_RELAY_DOWN, !RELAY_ON);
-  pinMode(PIN_RELAY_UP, OUTPUT);
-  pinMode(PIN_RELAY_DOWN, OUTPUT);
+  relaysOff();
 
   Serial.begin(115200);
 

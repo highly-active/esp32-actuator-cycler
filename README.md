@@ -41,7 +41,7 @@ The buck converter does not isolate input from output, so the 12 V and 5 V groun
 
 ### Relay trigger jumper
 
-The relay modules have an H/L trigger jumper. With the jumper on **H**, the 3.3 V ESP32 signal did not switch the relay reliably. Setting it to **L** fixed it. Check that `RELAY_ON` in the sketch matches how your module behaves, and test with the actuators disconnected first.
+The relay modules have an H/L trigger jumper. With the jumper on **H**, the 3.3 V ESP32 signal did not switch the relay reliably. Set it to **L**. The sketch pulls the pin LOW to turn a relay on and releases it (input) to turn it off, so 3.3 V never has to hold a 5 V module off. Test with the actuators disconnected first.
 
 ## Software
 
@@ -54,7 +54,6 @@ The relay modules have an H/L trigger jumper. With the jumper on **H**, the 3.3 
 | Constant | Meaning |
 |----------|---------|
 | `PIN_RELAY_UP`, `PIN_RELAY_DOWN` | relay signal pins |
-| `RELAY_ON` | signal level that turns a relay on |
 | `MOVE_MS` | time per move, full stroke plus a margin so both actuators reach their end stop |
 | `REST_MS` | pause after each move |
 
