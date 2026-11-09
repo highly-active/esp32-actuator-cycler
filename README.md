@@ -48,7 +48,7 @@ How it works:
 - Both relays off: both actuator wires sit on 12 V -, so the actuators are stopped.
 - Relay 1 on: red = 12 V +, black = 12 V -, so the actuators extend.
 - Relay 2 on: black = 12 V +, red = 12 V -, so the actuators retract.
-- The sketch never switches both relays on at once, which would short 12 V + to 12 V - through the contacts.
+- The sketch never switches both relays on at once. With this wiring both on would put 12 V + on both wires (no voltage across the actuators, so they would just stop), and the sketch waits 200 ms with both relays off between direction changes anyway.
 
 Steps:
 
