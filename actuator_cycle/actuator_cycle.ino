@@ -20,8 +20,8 @@ const int PIN_RELAY_DOWN = 33;   // relay 2 IN -> black actuator wires
 // 150 mm @ 14 mm/s ≈ 11 s -> 13 s.   300 mm @ 5 mm/s = 60 s -> 62 s.
 const unsigned long MOVE_MS = 13000;
 
-// Actuators are rated 25% duty cycle: rest 3x as long as they move.
-const unsigned long REST_MS = MOVE_MS * 0;
+// Short break between up and down (after every move).
+const unsigned long REST_MS = 1000;
 
 // ---------- STATE ----------
 enum State { MOVING_UP, REST_AFTER_UP, MOVING_DOWN, REST_AFTER_DOWN };
